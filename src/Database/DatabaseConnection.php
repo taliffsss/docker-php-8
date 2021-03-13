@@ -6,6 +6,7 @@ namespace Simple\Database;
 
 use Simple\Database\Exception\DatabaseConnectionException;
 use Simple\Database\DatabaseInterface;
+use \PDO;
 
 /**
  * summary
