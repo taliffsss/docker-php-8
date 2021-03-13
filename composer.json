@@ -1,0 +1,39 @@
+{
+	"Name": "Native/PHP",
+	"description": "A simple PHP Framework for building web application",
+	"keywords": ["Mark Naluz", "native php", "framework"],
+	"type": "library",
+	"license": "MIT",
+	"supports": {
+		"issues": "https://github.com/taliffsss/simple-php-framework/issues",
+		"source": "https://github.com/taliffsss/simple-php-framework",
+		"wiki": "https://github.com/taliffsss/simple-php-framework/wiki"
+	},
+	"authors": [
+		{
+			"name": "Mark Anthony Naluz",
+			"email": "anthony.naluz15@gmail.com",
+			"role": "Back-End Developer"
+		}
+	],
+	"minimum-stability": "alpha",
+	"require": {
+		"php": "7.4.2|^8.0",
+		"ext-mbstring": "*",
+		"ext-iconv": "*",
+		"ext-pdo": "*",
+		"ext-json": "*",
+		"ext-curl": "*",
+		"ext-simplexml": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"Simple\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Simple\\Tests\\": "tests/"
+		}
+	}
+}
