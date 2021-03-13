@@ -5,12 +5,9 @@ namespace Simple\Orm\DataMapper\Exception;
 
 use Exception;
 
-/**
- * summary
- */
 class DataMapperException extends Exception
 {
-    
+    // 
 }
 
 ?>
