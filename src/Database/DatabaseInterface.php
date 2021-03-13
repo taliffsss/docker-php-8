@@ -13,7 +13,7 @@ interface DatabaseInterface
 	public function open(): PDO
 
 	/**
-	* Close new Connetion
+	* Close Connetion
 	* @return pdo
 	*/
 	public function close(): void
