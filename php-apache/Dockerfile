@@ -27,6 +27,7 @@ RUN mkdir /var/www/html/logs && chmod 775 /var/www/html/logs
 
 COPY php.ini /usr/local/etc/php/php.ini
 COPY docker-php-ext-opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-COPY school-management.conf /etc/apache2/sites-available/school-management.conf /etc/apache2/sites-enabled/school-management.conf
+COPY school-management.conf /etc/apache2/sites-available/school-management.conf
+COPY school-management.conf /etc/apache2/sites-enabled/school-management.conf
 
 EXPOSE 8082
