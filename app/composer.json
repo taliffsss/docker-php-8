@@ -4,6 +4,11 @@
 	"keywords": ["Mark Anthony Naluz", "PHP 8 JIT"],
 	"type": "library",
 	"license": "MIT",
+	"supports": {
+		"issues": "https://github.com/taliffsss/docker-php-8/issues",
+		"source": "https://github.com/taliffsss/docker-php-8",
+		"wiki": "https://github.com/taliffsss/docker-php-8/wiki"
+	},
 	"authors": [
 		{
 			"name": "Mark Anthony Naluz",
@@ -21,7 +26,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Simple\\": "src/"
+			"Simple\\": "src/",
+			"Native\\Controller\\": "Controller/",
+			"Native\\Model\\": "Model/",
+			"Native\\Helper\\": "Helper/",
+			"Native\\Core\\": "Core/",
+			"Native\\Middleware\\": "Middleware/"
 		}
 	},
 	"autoload-dev": {
