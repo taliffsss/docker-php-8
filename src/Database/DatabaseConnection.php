@@ -21,21 +21,21 @@ class DatabaseConnection implements DatabaseInterface
     /**
      * @var array
      */
-    protected array $credentials;
+    private static $_instance = null;
 
     /**
     * Initialize constructor
     * @return void
     */
-    public function __construct(array $credentials)
+    private function __construct()
     {
-    	$this->credentials = $credentials;
+    	$this->open();
     }
 
     /**
     * Create new Connetion
     */
-    public function open(): PDO
+    private function open(): PDO
     {
     	try {
 
@@ -47,16 +47,43 @@ class DatabaseConnection implements DatabaseInterface
 	        ];
 
     		$this->dbh = new PDO(
-    			$this->credentials['dsn'],
-    			$this->credentials['username'],
-    			$this->credentials['password'],
+    			getenv('HOSTNAME'),
+    			getenv('USERNAME'),
+    			getenv('PASSWORD'),
     			$options
     		);
+
+            return $this->dbh;
+
     	} catch (PDOException $e) {
     		throw new DatabaseConnectionException($e->getMessage(), (int) $e->getCode());
     	}
+    }
 
-    	return $this->dbh;
+    /**
+     * Create an instance
+     */
+    public static function createIntance()
+    {
+
+        $dotenv = new Dotenv\Dotenv();
+
+        if (getenv('APP_ENV') === 'development') {
+
+            $dotenv->load(__DIR__);
+
+            self::$_config = true;
+        }
+
+        if (self::$_config == true) {
+            if (!isset(self::$_instance)) {
+                self::$_instance = new Database();
+            }
+
+            return self::$_instance;
+        }
+
+        return false;
     }
 
     /**

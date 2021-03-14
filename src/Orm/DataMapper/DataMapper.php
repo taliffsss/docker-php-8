@@ -1,34 +1,36 @@
-<?php
+<?php 
 
-declare(strict_type=1);
+declare(strict_types=1);
 
 namespace Simple\Orm\DataMapper;
 
-use Simple\Database\DatabaseInterface;
+use Simple\Base\Exception\BaseInvalidArgumentException;
+use Simple\Base\Exception\BaseNoValueException;
+use Simple\Base\Exception\BaseException;
 use Simple\Orm\DataMapper\Exception\DataMapperException;
+use Simple\DatabaseConnection\DatabaseConnectionInterface;
 use PDOStatement;
 use Throwable;
 use PDO;
 
-/**
- * summary
- */
 class DataMapper implements DataMapperInterface
 {
 
-	/**
-	 * @var DatabaseInterface
-	 */
-    private DatabaseInterface $dbh;
+    /** @var DatabaseConnectionInterface */
+    private DatabaseConnectionInterface $dbh;
+
+    /** @var PDOStatement */
+    private PDOStatement $statement;
 
     /**
-	 * @var DatabaseInterface
-	 */
-    private PDOStatement $stmt;
-
-    public function __construct(DatabaseInterface $db)
+     * Main constructor class
+     * 
+     * @param DatabaseConnectionInterface
+     * @return void
+     */
+    public function __construct(DatabaseConnectionInterface $dbh)
     {
-    	$this->dbh = $db;
+        $this->dbh = $dbh;
     }
 
     /**
@@ -41,242 +43,207 @@ class DataMapper implements DataMapperInterface
      */
     private function isEmpty($value, string $errorMessage = null)
     {
-    	if (empty($value)) {
-    		throw new DataMapperException($errorMessage);
-    	}
+        if (empty($value)) {
+            throw new BaseNoValueException($errorMessage);
+        }
     }
 
+    /**
+     * Check the incoming argument $value is an array else throw an exception
+     * 
+     * @param array $value
+     * @return void
+     * @throws BaseInvalidArgumentException
+     */
     private function isArray(array $value)
     {
-    	if (!is_array($value)) {
-    		throw new DataMapperException('Your argument needs to be an array');
-    	}
+        if (!is_array($value)) {
+            throw new BaseInvalidArgumentException('Your argument needs to be an array');
+        }
     }
 
     /**
-     * Prepares a statement for execution and returns a statement object
-     * 
-     * @param string $sqlQuery
-     * @return self
+     * @inheritDoc
      */
-    public function prepare(string $sqlQuery): self
+    public function prepare(string $sqlQuery) : self
     {
-    	$this->stmt = $this->dbh->open()->prepare($sqlQuery);
-
-    	return $this;
+        $this->isEmpty($sqlQuery);
+        $this->statement = $this->dbh->open()->prepare($sqlQuery);
+        return $this;
     }
 
     /**
-     * the variable is bound as a reference and will only be evaluated at the time that PDOStatement::execute()
-     * @param $value is the actual value that we want to bind to the placeholder
-     * @param $type is the datatype of the parameter
+     * @inheritDoc
+     *
+     * @param [type] $value
+     * @return void
      */
     public function bind($value)
     {
-    	try {
-    		
-			switch (true) {
-				case is_int($value):
-					$dataType = PDO::PARAM_INT;
-					break;
-				case is_bool($value):
-					$dataType = PDO::PARAM_BOOL;
-					break;
-				case is_null($value):
-					$dataType = PDO::PARAM_NULL;
-					break;
-				default:
-					$dataType = PDO::PARAM_STR;
-					break;
-			}
-
-			return $dataType;
-
-    	} catch (DataMapperException $e) {
-    		throw $e;
-    	}
+        try {
+            switch($value) {
+                case is_bool($value) :
+                case intval($value) :
+                    $dataType = PDO::PARAM_INT;
+                    break;
+                case is_null($value) :
+                    $dataType = PDO::PARAM_NULL;
+                    break;
+                default :
+                    $dataType = PDO::PARAM_STR;
+                    break;
+            }
+            return $dataType;
+        } catch(BaseException $exception) {
+            throw $exception;
+        }
     }
 
     /**
-     * Binds a parameter to the specified variable name
-     * 
+     * @inheritDoc
+     *
      * @param array $fields
-     * @param bool $isSearch
+     * @param boolean $isSearch
      * @return self
      */
-    public function bindParameters((array $fileds, bool $isSearch = false): self
+    public function bindParameters(array $fields, bool $isSearch = false) : self
     {
-    	if (is_array($fileds)) {
-    		$type = ($isSearch === false) ? $this->bindValue($fields) : $this->bindSearchValues($fields);
-
-    		if ($type) {
-    			return $this;
-    		}
-    	}
-
-    	return false;
+        $this->isArray($fields);
+        if (is_array($fields)) {
+            $type = ($isSearch === false) ? $this->bindValues($fields) : $this->bindSearchValues($fields);
+            if ($type) {
+                return $this;
+            }
+        }
+        return false;
     }
 
     /**
-     * Binds a value to a parameter
+     * Binds a value to a corresponding name or question mark placeholder in the SQL
+     * statement that was used to prepare the statement
      * 
      * @param array $fields
+     * @return PDOStatement
+     * @throws BaseInvalidArgumentException
+     */
+    protected function bindValues(array $fields) : PDOStatement
+    {
+        $this->isArray($fields); // don't need
+        foreach ($fields as $key => $value) {
+            $this->statement->bindValue(':' . $key, $value, $this->bind($value));
+        }
+        return $this->statement;
+    }
+
+    /**
+     * Binds a value to a corresponding name or question mark placeholder
+     * in the SQL statement that was used to prepare the statement. Similar to
+     * above but optimised for search queries
+     * 
+     * @param array $fields
+     * @return mixed
+     * @throws BaseInvalidArgumentException
+     */
+    protected function bindSearchValues(array $fields) :  PDOStatement
+    {
+        $this->isArray($fields); // don't need
+        foreach ($fields as $key => $value) {
+            $this->statement->bindValue(':' . $key,  '%' . $value . '%', $this->bind($value));
+        }
+        return $this->statement;
+    }
+
+    /**
+     * @inheritDoc
+     *
      * @return void
      */
-    protected function bindValue(array $fields)
+    public function execute()
     {
-    	$this->isArray($fields);
-
-    	foreach ($fields as $key => $value) {
-    		$this->stmt->bindValue(':' . $key, $value, $this->bind($value));
-    	}
-
-    	return $this->stmt;
+        if ($this->statement) 
+            return $this->statement->execute();
     }
-
     /**
+     * @inheritDoc
      *
+     * @return integer
      */
-    protected function bindSearchValues(array $fields)
+    public function numRows() : int
     {
-    	$this->isArray($fields);
-
-    	foreach ($fields as $key => $value) {
-    		$this->stmt->bindValue(':' . $key, '%' . $value . '%', $this->bind($value));
-    	}
-
-    	return $this->stmt;
+        if ($this->statement) return $this->statement->rowCount();
     }
-
     /**
-     * The execute method executes the prepared statement.
-     * 
-     * @return bool
-     */
-    public function execute(): bool
-    {
-    	
-    	if ($this->stmt) return $this->stmt->execute();
-    }
-
-    /**
+     * @inheritDoc
      *
-     */
-    public function numRows(): int
-    {
-    	
-    	if ($this->stmt) return $this->stmt->rowCount();
-    }
-
-    /**
-     * Returns a single database row as an object
-     * 
      * @return Object
      */
-    public function result(): object
+    public function result() : Object
     {
-    	
-    	if ($this->stmt) return $this->stmt->fetch(PDO::FETCH_OBJ);
+        if ($this->statement) return $this->statement->fetch(PDO::FETCH_OBJ);
     }
-
     /**
-     * Returns all the rows within the database as an array
-     * 
-     * @return array
-     */
-    public function results(): array
-    {
-    	
-    	if ($this->stmt) return $this->stmt->fetchAll();
-    }
-
-    /**
-     * Transactions allows you to run multiple changes to a database
-     *
-     * @return bool
-     */
-    public function startTransaction(): bool
-    {
-    	if ($this->stmt) return $this->stmt->beginTransaction();
-    }
-
-    /**
-     * End a transaction and commit your changes
-     *
-     * @return bool
-     */
-    public function startTransaction(): bool
-    {
-    	if ($this->stmt) return $this->stmt->commit();
-    }
-
-    /**
-     * Cancel a transaction and roll back your changes
-     *
-     * @return bool
-     */
-    public function cancelTransaction(): bool
-    {
-    	if ($this->stmt) return $this->stmt->rollBack();
-    }
-
-    /**
-     * returns an array of PDO driver names.
+     * @inheritDoc
      *
      * @return array
      */
-    public function getDatabaseDrivers(): array
+    public function results() : array
     {
-    	return PDO::getAvailableDrivers();
+        if ($this->statement) return $this->statement->fetchAll();
     }
 
     /**
-     * Returns a single column from the next row of a result set
-     * 
-     * @return mixed
+     * @inheritDoc
      */
     public function column()
     {
-        if ($this->stmt) return $this->stmt->fetchColumn();
+        if ($this->statement) return $this->statement->fetchColumn();
     }
 
     /**
-     * Returns a single column from the next row of a result set
+     * @inheritDoc
      *
-     * @return string
+     * @return integer
      */
-    public function dump()
+    public function getLastId() : int
     {
-        if ($this->stmt) return $this->stmt->debugDumpParams();
+        try {
+            if ($this->dbh->open()) {
+                $lastID = $this->dbh->open()->lastInsertId();
+                if (!empty($lastID)) {
+                    return intval($lastID);
+                }
+            }
+        }catch(Throwable $throwable) {
+            throw $throwable;
+        }
     }
 
     /**
-     * Returns a single column from the next row of a result set
-     *
-     * @param string $rawSql
+     * Returns the query condition merged with the query parameters
+     * 
+     * @param array $conditions
+     * @param array $parameters
+     * @return array
+     */
+    public function buildQueryParameters(array $conditions = [], array $parameters = []) : array
+    {
+        return (!empty($parameters) || (!empty($conditions)) ? array_merge($conditions, $parameters) : $parameters);
+    }
+
+    /**
+     * Persist queries to database
+     * 
+     * @param string $query
+     * @param array $parameters
      * @return mixed
+     * @throws Throwable
      */
-    public function rawQuery(string $rawSql)
+    public function persist(string $sqlQuery, array $parameters)
     {
-        return $this->stmt->query($rawSql);
-    }
-
-    /**
-     * returns the last inserted Id as a string
-     */
-    public function getLastId(): int
-    {
-    	try {
-    		if ($this->dbh->open()) {
-    			$lastInsertId = $this->dbh->open()->lastInsertId();
-
-    			if (!empty($lastInsertId)) {
-    				return intval($lastInsertId);
-    			}
-    		}
-    	} catch (Throwable $e) {
-    		throw $e;
-    	}
+        try {
+            return $this->prepare($sqlQuery)->bindParameters($parameters)->execute();
+        } catch(Throwable $throwable){
+            throw $throwable;
+        }
     }
 }
-?>

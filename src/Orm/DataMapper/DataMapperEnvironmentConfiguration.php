@@ -1,23 +1,23 @@
 <?php
-	
-declare(strict_type=1);
+
+declare(strict_types=1);
 
 namespace Simple\Orm\DataMapper;
 
-use Simple\Orm\DataMapper\Exception\DataMapperInvalidArgumentException;
+use Simple\Base\Exception\BaseInvalidArgumentException;
 
 class DataMapperEnvironmentConfiguration
 {
-    
+
     /**
      * @var array
      */
-    private array $credentials = [];
+    private array $credentials;
 
     /**
-     * Initialize main constructor
-     *
-     * @param array $credential
+     * Main construct class
+     * 
+     * @param array $credentials
      * @return void
      */
     public function __construct(array $credentials)
@@ -26,43 +26,37 @@ class DataMapperEnvironmentConfiguration
     }
 
     /**
-     * Get database credential in environment file
-     *
-     * @param string $driver
-     * @return array
-     */
-    public function getDatabaseCredentials(string $driver): array 
-    {
-    	$connection = [];
-
-    	foreach ($this->credentials as $credential) {
-    		if (array_key_exists($driver, $credential)) {
-    			$connection = $credential[$driver];
-    		}
-    	}
-
-    	return $connection;
-    }
-
-    /**
-     * Check if database credential is valid
-     *
+     * Checks credentials for validity
+     * 
      * @param string $driver
      * @return void
      */
-    private function isCredentialValid(string $driver)
+    private function isCredentialsValid(string $driver) : void
     {
-    	if (empty($driver) || !is_string($driver)) {
-    		throw new DataMapperInvalidArgumentException('Invalid argument database credentials');
-    	}
-
-    	if (!is_array($this->credentials)) {
-    		throw new DataMapperInvalidArgumentException('Invalid argument database credentials must be array');
-    	}
-
-    	if (!in_array($driver, array_keys($this->credentials))) {
-    		throw new DataMapperInvalidArgumentException('Database driver not supported');
-    	}
+        if (empty($driver) || !is_array($this->credentials)) {
+            throw new BaseInvalidArgumentException('Core Error: You have either not specify the default database driver or the database.yaml is returning null or empty.');
+        }
     }
+    
+    /**
+     * Get the user defined database connection array
+     * 
+     * @param string $driver
+     * @return array
+     * @throws BaseInvalidArgumentException
+     */
+    public function getDatabaseCredentials(string $driver) : array
+    {
+        $connectionArray = [];
+        $this->isCredentialsValid($driver);
+        foreach ($this->credentials as $credential) {
+            if (!array_key_exists($driver, $credential)) {
+                throw new BaseInvalidArgumentException('Core Error: Your selected database driver is not supported. Please see the database.yaml file for all support driver. Or specify a supported driver from your app.yaml configuration file');
+            } else {
+                $connectionArray = $credential[$driver];
+            }
+        }
+        return $connectionArray;
+    }
+
 }
-?>

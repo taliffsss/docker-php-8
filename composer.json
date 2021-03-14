@@ -1,7 +1,7 @@
 {
 	"Name": "Native/PHP",
-	"description": "A simple PHP Framework for building web application",
-	"keywords": ["Mark Naluz", "native php", "framework"],
+	"description": "A simple database library using pdo",
+	"keywords": ["Mark Anthony Naluz", "PDO PHP"],
 	"type": "library",
 	"license": "MIT",
 	"supports": {
@@ -19,12 +19,9 @@
 	"minimum-stability": "alpha",
 	"require": {
 		"php": "7.4.2|^8.0",
-		"ext-mbstring": "*",
 		"ext-iconv": "*",
 		"ext-pdo": "*",
 		"ext-json": "*",
-		"ext-curl": "*",
-		"ext-simplexml": "*",
 		"vlucas/phpdotenv": "^5.3"
 	},
 	"autoload": {
