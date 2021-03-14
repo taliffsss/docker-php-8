@@ -1,0 +1,32 @@
+{
+	"Name": "Native/PHP",
+	"description": "A simple database library using pdo",
+	"keywords": ["Mark Anthony Naluz", "PHP 8 JIT"],
+	"type": "library",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Mark Anthony Naluz",
+			"email": "anthony.naluz15@gmail.com",
+			"role": "Back-End Developer"
+		}
+	],
+	"minimum-stability": "alpha",
+	"require": {
+		"php": "7.4.2|^8.0",
+		"ext-iconv": "*",
+		"ext-pdo": "*",
+		"ext-json": "*",
+		"vlucas/phpdotenv": "^5.3"
+	},
+	"autoload": {
+		"psr-4": {
+			"Simple\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Simple\\Tests\\": "tests/"
+		}
+	}
+}

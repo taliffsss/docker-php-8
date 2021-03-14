@@ -1,0 +1,56 @@
+version: "3.7"
+
+services:
+  web:
+    build:
+      context: ./php-apache
+      dockerfile: Dockerfile
+    networks: 
+      - native-php
+    container_name: apache
+    restart: unless-stopped
+    depends_on:
+     - mysql
+    ports:
+      - "8082:80"
+    networks: 
+      - native-php
+    volumes:
+      - ./app:/var/www/html/
+
+  mysql:
+    image: mysql:5.7.29
+    networks: 
+      - native-php
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "6033:3306"
+    environment:
+      MYSQL_DATABASE: school_management
+      MYSQL_USER: tony_admin
+      MYSQL_PASSWORD: sch00LM@n@g3m3nt
+      MYSQL_ROOT_PASSWORD: sch00LM@n@g3m3nt
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:6-alpine
+    networks: 
+      - native-php
+    container_name: redis
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+networks:
+  native-php:
+
+
+      
