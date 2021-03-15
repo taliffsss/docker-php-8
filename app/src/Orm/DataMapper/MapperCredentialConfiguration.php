@@ -1,10 +1,12 @@
 <?php
 
-namespace Simple\Orm;
+declare(strict_types=1);
+
+namespace Simple\Orm\DataMapper;
 
 use Simple\Orm\Exception\DatabaseConnectionException;
 
-class DatabaseCredentialConfiguration
+class MapperCredentialConfiguration
 {
 
     /**

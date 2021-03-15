@@ -1,16 +1,21 @@
 <?php
 
-namespace Simple\Orm;
+declare(strict_types=1);
 
-interface DatabaseQueryBuilderInterface
+namespace Simple\Orm\DataMapper;
+
+use \PDOStatement;
+
+interface MapperInterface
 {
+
     /**
      * Prepare the query string
      * 
      * @param string $sqlQuery
      * @return self
      */
-    public function prepare(string $sqlQuery);
+    public function query(string $sqlQuery): PDOStatement;
 
     /**
      * Explicit dat type for the parameter usinmg the PDO::PARAM_* constants.
@@ -41,9 +46,9 @@ interface DatabaseQueryBuilderInterface
     /**
      * Execute function which will execute the prepared statement
      * 
-     * @return void
+     * @return bool
      */
-    public function execute();
+    public function execute(): bool;
 
     /**
      * Returns a single database row as an object
@@ -67,11 +72,32 @@ interface DatabaseQueryBuilderInterface
     public function column();
 
     /**
-     * Returns a database column
+     * Transactions allows you to run multiple changes to a database
+     * 
+     * @return bool
+     */
+    public function startTransaction(): bool;
+
+    /**
+     * End a transaction and commit your changes in database
+     * 
+     * @return bool
+     */
+    public function endTransaction(): bool;
+
+    /**
+     * Cancel a transaction and roll back your changes
+     * 
+     * @return bool
+     */
+    public function cancelTransaction(): bool;
+
+    /**
+     * dumps the the information that was contained in the Prepared Statement
      * 
      * @return mixed
      */
-    public function query(string $sqlQuery);
+    public function dumpParams(): void;
 
     /**
      * Returns the last inserted row ID from database table

@@ -1,8 +1,12 @@
 <?php
 
-namespace Simple\Orm;
+declare(strict_types=1);
 
-class QueryBuilderFactory
+namespace Simple\Orm\DataMapper;
+
+use Simple\Exception\BaseInvalidArgumentException;
+
+class MapperFactory
 {
 
     /**
@@ -23,7 +27,7 @@ class QueryBuilderFactory
      * @return DataMapperInterface
      * @throws Exception
      */
-    public function create(string $dbConnectionString): DatabaseQueryBuilderInterface
+    public function create(string $dbConnectionString): MapperInterface
     {
 
         $credentials = [
@@ -36,7 +40,7 @@ class QueryBuilderFactory
             ]
         ];
 
-        $config = new DatabaseCredentialConfiguration($credentials);
+        $config = new MapperCredentialConfiguration($credentials);
 
         // Create databaseConnection Object and pass the database credentials in
         $credentials = $config->getDatabaseCredentials('mysql');
@@ -44,13 +48,13 @@ class QueryBuilderFactory
         $dbConnectionObject = new $dbConnectionString($credentials);
 
         if (!$dbConnectionObject instanceof DatabaseInterface) {
-            throw new InvalidArgumentException($dbConnectionString . ' is not a valid database connection object');
+            throw new BaseInvalidArgumentException($dbConnectionString . ' is not a valid database connection object');
         }
 
-        $queryBuilder = new DatabaseQueryBuilder($dbConnectionObject);
+        $queryBuilder = new Mapper($dbConnectionObject);
 
-        if (!($queryBuilder instanceof DatabaseQueryBuilderInterface)) {
-            throw new InvalidArgumentException($queryBuilder . ' is not a valid database connection object');
+        if (!($queryBuilder instanceof MapperInterface)) {
+            throw new BaseInvalidArgumentException($queryBuilder . ' is not a valid database connection object');
         }
 
         return $queryBuilder;

@@ -1,19 +1,24 @@
 <?php 
 
-namespace Simple\Orm;
+declare(strict_types=1);
 
+namespace Simple\Orm\DataMapper;
+
+use Simple\Exception\BaseInvalidArgumentException;
+use Simple\Exception\BaseNoValueException;
+use Simple\Exception\BaseException;
 use \PDOStatement;
 use \Throwable;
 use \PDO;
 
-class DatabaseQueryBuilder implements DatabaseQueryBuilderInterface
+class Mapper implements MapperInterface
 {
 
     /** @var DatabaseInterface */
     private $dbh;
 
     /** @var PDOStatement */
-    private $statement;
+    private $stmt;
 
     /**
      * Main constructor class
@@ -37,7 +42,7 @@ class DatabaseQueryBuilder implements DatabaseQueryBuilderInterface
     private function isEmpty($value, string $errorMessage = null)
     {
         if (empty($value)) {
-            throw new Exception($errorMessage);
+            throw new BaseNoValueException($errorMessage);
         }
     }
 
@@ -51,24 +56,20 @@ class DatabaseQueryBuilder implements DatabaseQueryBuilderInterface
     private function isArray(array $value)
     {
         if (!is_array($value)) {
-            throw new Exception('Your argument needs to be an array');
+            throw new BaseInvalidArgumentException('Your argument needs to be an array');
         }
     }
 
     /**
-     * @inheritDoc
+     * Prepare the query string
+     * 
+     * @param string $sqlQuery
+     * @return self
      */
-    public function prepare(string $sqlQuery)
+    public function query(string $sqlQuery): PDOStatement
     {
         $this->isEmpty($sqlQuery);
-        $this->statement = $this->dbh->open()->prepare($sqlQuery);
-        return $this;
-    }
-
-    public function query(string $sqlQuery)
-    {
-        $this->isEmpty($sqlQuery);
-        $this->statement = $this->dbh->open()->prepare($sqlQuery);
+        $this->stmt = $this->dbh->open()->prepare($sqlQuery);
         return $this;
     }
 
@@ -94,7 +95,7 @@ class DatabaseQueryBuilder implements DatabaseQueryBuilderInterface
                     break;
             }
             return $dataType;
-        } catch(Exception $exception) {
+        } catch(BaseException $exception) {
             throw $exception;
         }
     }
@@ -130,9 +131,9 @@ class DatabaseQueryBuilder implements DatabaseQueryBuilderInterface
     {
         $this->isArray($fields); // don't need
         foreach ($fields as $key => $value) {
-            $this->statement->bindValue(':' . $key, $value, $this->bind($value));
+            $this->stmt->bindValue(':' . $key, $value, $this->bind($value));
         }
-        return $this->statement;
+        return $this->stmt;
     }
 
     /**
@@ -144,51 +145,50 @@ class DatabaseQueryBuilder implements DatabaseQueryBuilderInterface
      * @return mixed
      * @throws Exception
      */
-    protected function bindSearchValues(array $fields) :  PDOStatement
+    protected function bindSearchValues(array $fields):  PDOStatement
     {
         $this->isArray($fields); // don't need
         foreach ($fields as $key => $value) {
-            $this->statement->bindValue(':' . $key,  '%' . $value . '%', $this->bind($value));
+            $this->stmt->bindValue(':' . $key,  '%' . $value . '%', $this->bind($value));
         }
-        return $this->statement;
+        return $this->stmt;
     }
 
     /**
      * @inheritDoc
      *
-     * @return void
+     * @return bool
      */
-    public function execute()
+    public function execute(): bool
     {
-        if ($this->statement) 
-            return $this->statement->execute();
+        if ($this->stmt) return $this->stmt->execute();
     }
     /**
      * @inheritDoc
      *
      * @return integer
      */
-    public function numRows() : int
+    public function numRows(): int
     {
-        if ($this->statement) return $this->statement->rowCount();
+        if ($this->stmt) return $this->stmt->rowCount();
     }
     /**
      * @inheritDoc
      *
      * @return Object
      */
-    public function result() : Object
+    public function result(): Object
     {
-        if ($this->statement) return $this->statement->fetch(PDO::FETCH_OBJ);
+        if ($this->stmt) return $this->stmt->fetch(PDO::FETCH_OBJ);
     }
     /**
      * @inheritDoc
      *
      * @return array
      */
-    public function results() : array
+    public function results(): array
     {
-        if ($this->statement) return $this->statement->fetchAll();
+        if ($this->stmt) return $this->stmt->fetchAll();
     }
 
     /**
@@ -196,7 +196,55 @@ class DatabaseQueryBuilder implements DatabaseQueryBuilderInterface
      */
     public function column()
     {
-        if ($this->statement) return $this->statement->fetchColumn();
+        if ($this->stmt) return $this->stmt->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function column()
+    {
+        if ($this->stmt) return $this->stmt->fetchColumn();
+    }
+
+    /**
+     * Transactions allows you to run multiple changes to a database
+     * 
+     * @return bool
+     */
+    public function startTransaction(): bool
+    {
+        if ($this->stmt) return $this->stmt->beginTransaction();
+    }
+
+    /**
+     * Transactions allows you to run multiple changes to a database
+     * 
+     * @return bool
+     */
+    public function endTransaction(): bool
+    {
+        if ($this->stmt) return $this->stmt->commit();
+    }
+
+    /**
+     * Transactions allows you to run multiple changes to a database
+     * 
+     * @return bool
+     */
+    public function cancelTransaction(): bool
+    {
+        if ($this->stmt) return $this->stmt->rollBack();
+    }
+
+    /**
+     * dumps the the information that was contained in the Prepared Statement
+     * 
+     * @return mixed
+     */
+    public function dumpParams(): void
+    {
+        if ($this->stmt) return $this->stmt->debugDumpParams();
     }
 
     /**
