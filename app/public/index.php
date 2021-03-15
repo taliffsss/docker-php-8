@@ -4,6 +4,8 @@
 
 	define('ENVIRONMENT', isset($_SERVER['NATIVE_PHP']) ? $_SERVER['NATIVE_PHP'] : 'development');
 
+	define('BASEPATH', __DIR__ . DIRECTORY_SEPARATOR .'../');
+
 	switch (ENVIRONMENT) {
 		case 'test':
 		case 'development':
@@ -21,4 +23,18 @@
 			echo 'The application environment is not set correctly.';
 			exit(1);
 	}
+
+	$dotenv = Dotenv\Dotenv::createImmutable();
+	$dotenv->load();
+
+	$repository = Dotenv\Repository\RepositoryBuilder::createWithNoAdapters()
+    ->addAdapter(Dotenv\Repository\Adapter\EnvConstAdapter::class)
+    ->addWriter(Dotenv\Repository\Adapter\PutenvAdapter::class)
+    ->immutable()
+    ->make();
+
+	$dotenv = Dotenv\Dotenv::create($repository, BASEPATH);
+	$dotenv->load();
+
+	echo getenv('DB_DRIVER');
 ?>
