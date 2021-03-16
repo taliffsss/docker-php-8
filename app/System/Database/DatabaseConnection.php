@@ -22,10 +22,15 @@ class DatabaseConnection implements DatabaseInterface
     protected $credentials = [];
 
     /**
+     * @var instance
+     */
+    private static $instance = null;
+
+    /**
     * Initialize constructor
     * @return void
     */
-    public function __construct(array $credentials)
+    private function __construct()
     {
         $this->credentials = $credentials;
     }
@@ -33,7 +38,7 @@ class DatabaseConnection implements DatabaseInterface
     /**
     * Create new Connetion
     */
-    public function open(): PDO
+    private function open(): PDO
     {
         try {
 
@@ -51,10 +56,31 @@ class DatabaseConnection implements DatabaseInterface
                 $options
             );
         } catch (PDOException $e) {
-            throw new DatabaseConnectionException($e->getMessage(), (int) $e->getCode());
+
+            $this->error = $e->getMessage();
+
         }
 
         return $this->dbh;
+    }
+
+    /**
+     * Create an instance
+     */
+    public static function getInstance() 
+    {
+
+        self::$_config = true;
+
+        if (self::$_config == TRUE) {
+            if (!isset(self::$_instance)) {
+                self::$_instance = new Database();
+            }
+
+            return self::$_instance;
+        }
+
+        return false;
     }
 
     /**

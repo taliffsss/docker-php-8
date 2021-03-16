@@ -1,6 +1,6 @@
 <?php 
 
-namespace Cartrack\Database;
+namespace Simple\Orm\QueryBuilder;
 
 use \PDOStatement;
 use \Throwable;

@@ -9,7 +9,7 @@ class Test
 
     public function getResults()
     {
-        echo "Namespace working";
+        echo env('DB_DRIVER');
     }
 
 }

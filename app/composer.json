@@ -30,6 +30,10 @@
 		"slim/psr7": "^1.3"
 	},
 	"autoload": {
+	    "files": [
+	    	"System/Core/initialize.php",
+	    	"System/Helper/helpers.php"
+	    ],
 		"psr-4": {
 			"Simple\\": "System/",
 			"Native\\Controller\\": "Controller/",
