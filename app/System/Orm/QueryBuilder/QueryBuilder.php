@@ -48,7 +48,7 @@ class QueryBuilder implements QueryBuilderInterface
     /**
      * @var $primary_key
      */
-    public string $primary_key;
+    public string $primary_key = 'id';
 
     /** @var PDOStatement */
     private $stmt;
@@ -88,6 +88,30 @@ class QueryBuilder implements QueryBuilderInterface
         }
 
         return $this->execute();
+
+    }
+
+    /**
+     * Save Data
+     *
+     * @param $table TableName
+     * @param $data FieldName & FieldValue
+     */
+    public function save(array $data): bool
+    {
+
+        if (!in_array($this->primary_key, $data)) {
+            return $this->insert($this->table, $data);
+        }
+
+        $where = [
+            $this->primary_key => $data[$this->primary_key]
+        ];
+
+        // remove primary key
+        unset($data[$this->primary_key]);
+
+        return $this->update($this->table, $data, $where);
 
     }
 
@@ -169,11 +193,6 @@ class QueryBuilder implements QueryBuilderInterface
         return $this->where;
     }
 
-    private function query(string $sqlQuery)
-    {
-        $this->stmt = $this->db->prepare($sqlQuery);
-    }
-
     /**
      * Update data
      * @param $table TableName
@@ -250,7 +269,7 @@ class QueryBuilder implements QueryBuilderInterface
     private function isEmpty($value)
     {
         if (empty($value)) {
-            // error
+            throw new Exception('Argument must not empty');
         }
     }
 
@@ -263,9 +282,17 @@ class QueryBuilder implements QueryBuilderInterface
      */
     private function isArray(array $value)
     {
+
+        $this->isEmpty($value);
+
         if (!is_array($value)) {
             throw new Exception('Your argument needs to be an array');
         }
+    }
+
+    private function query(string $sqlQuery)
+    {
+        $this->stmt = $this->db->prepare($sqlQuery);
     }
 
     public function results(): object 

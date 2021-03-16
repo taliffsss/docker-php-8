@@ -17,6 +17,8 @@ interface QueryBuilderInterface
 
     public function where(array $where): string;
 
+    public function save(array $save): bool;
+
     public function row(): object;
 
     public function results(): object;
