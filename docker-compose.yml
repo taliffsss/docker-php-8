@@ -10,7 +10,7 @@ services:
     container_name: apache
     restart: unless-stopped
     depends_on:
-     - mysql
+     - db
     ports:
       - "8082:80"
     networks: 
@@ -18,11 +18,11 @@ services:
     volumes:
       - ./app:/var/www/html/
 
-  mysql:
+  db:
     image: mysql:5.7.29
     networks: 
       - native-php
-    container_name: mysql
+    container_name: mysql-5.7.29
     restart: unless-stopped
     tty: true
     ports:
@@ -37,17 +37,17 @@ services:
     volumes:
       - ./mysql-data:/var/lib/mysql
 
-  redis:
+  caching:
     image: redis:6-alpine
     networks: 
       - native-php
-    container_name: redis
+    container_name: redis-6-alpine
     ports:
-      - 6379:6379
+      - 9736:6379
     restart: unless-stopped
     environment:
       REDIS_HOST: redis
-      REDIS_PORT: 6379
+      REDIS_PORT: 9736
 
 networks:
   native-php:

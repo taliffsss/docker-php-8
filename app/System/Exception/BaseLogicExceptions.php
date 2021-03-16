@@ -6,7 +6,7 @@ namespace Simple\Exception;
 
 use LogicException;
 
-class BaseLogicException extends LogicException
+class BaseLogicExceptions extends LogicException
 { 
     /**
      * Exception that represents error in the program logic. This kind of exception should

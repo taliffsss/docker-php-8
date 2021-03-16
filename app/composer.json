@@ -31,13 +31,19 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Simple\\": "src/",
+			"Simple\\": "System/",
 			"Native\\Controller\\": "Controller/",
 			"Native\\Model\\": "Model/",
-			"Native\\Helper\\": "Helper/",
 			"Native\\Core\\": "Core/",
 			"Native\\Middleware\\": "Middleware/"
-		}
+		},
+		"classmap": [
+			"System/",
+			"Controller/",
+			"Model/",
+			"Core/",
+			"Middleware/"
+	    ]
 	},
 	"autoload-dev": {
 		"psr-4": {

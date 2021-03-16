@@ -24,17 +24,20 @@
 			exit(1);
 	}
 
-	$dotenv = Dotenv\Dotenv::createImmutable();
-	$dotenv->load();
+	try {
 
-	$repository = Dotenv\Repository\RepositoryBuilder::createWithNoAdapters()
-    ->addAdapter(Dotenv\Repository\Adapter\EnvConstAdapter::class)
-    ->addWriter(Dotenv\Repository\Adapter\PutenvAdapter::class)
-    ->immutable()
-    ->make();
+		$repository = Dotenv\Repository\RepositoryBuilder::createWithNoAdapters()
+			    ->addAdapter(Dotenv\Repository\Adapter\EnvConstAdapter::class)
+			    ->addWriter(Dotenv\Repository\Adapter\PutenvAdapter::class)
+			    ->immutable()
+			    ->make();
 
-	$dotenv = Dotenv\Dotenv::create($repository, BASEPATH);
-	$dotenv->load();
+		$dotenv = Dotenv\Dotenv::create($repository, BASEPATH);
+		$dotenv->load();
 
-	echo getenv('DB_DRIVER');
+	} catch (Exception $e) {
+		
+		echo $e->getMessage();
+
+	}
 ?>

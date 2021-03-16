@@ -29,21 +29,12 @@ class MapperFactory
      */
     public function create(string $dbConnectionString): MapperInterface
     {
-
-        $credentials = [
-            'driver' => [
-                'mysql' => [
-                    'dsn'       => 'pgsql:host='.$_SERVER['DB_HOST_POSTGRES'].';port='.$_SERVER['DB_PORT_POSTGRES'].';dbname='.$_SERVER['DB_NAME_POSTGRES'].';sslmode=require',
-                    'username'  => $_SERVER['DB_USERNAME_POSTGRES'],
-                    'password'  => $_SERVER['DB_PASSWORD_POSTGRES']
-                ]
-            ]
-        ];
+        
 
         $config = new MapperCredentialConfiguration($credentials);
 
         // Create databaseConnection Object and pass the database credentials in
-        $credentials = $config->getDatabaseCredentials('mysql');
+        $credentials = $config->getDatabaseCredentials();
 
         $dbConnectionObject = new $dbConnectionString($credentials);
 
