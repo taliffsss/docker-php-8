@@ -4,91 +4,35 @@ namespace Simple\Orm\QueryBuilder;
 
 interface QueryBuilderInterface
 {
-    /**
-     * Prepare the query string
-     * 
-     * @param string $sqlQuery
-     * @return self
-     */
-    public function rawQuery(string $sqlQuery);
 
-    /**
-     * Explicit dat type for the parameter usinmg the PDO::PARAM_* constants.
-     * 
-     * @param mixed $value
-     * @return mixed
-     */
-    public function bind($value);
+    public function select(string $select): string;
 
-    /**
-     * returns the number of rows affected by a DELETE, INSERT, or UPDATE statement.
-     * 
-     * @return int|null
-     */
+    public function insert(string $table, array $data): bool;
+
+    public function from(string $table): string;
+
+    public function get(string $table): string;
+
+    public function join(array $where): string;
+
+    public function where(array $where): string;
+
+    public function row(): object;
+
+    public function results(): object;
+
+    public function rowArray(): array;
+
+    public function resultsArray(): array;
+
     public function numRows(): int;
 
-    /**
-     * Execute function which will execute the prepared statement
-     * 
-     * @return void
-     */
-    public function execute();
+    public function lastInsertId(): int;
 
-    /**
-     * Returns a single database row as an object
-     * 
-     * @return Object
-     */
-    public function result(): Object;
+    public function beginTransaction(): bool;
 
-    /**
-     * Returns all the rows within the database as an array
-     * 
-     * @return array
-     */
-    public function results(): array;
+    public function commit(): bool;
 
-    /**
-     * Returns a database column
-     * 
-     * @return mixed
-     */
-    public function column();
-
-    /**
-     * Returns the last inserted row ID from database table
-     * 
-     * @return int
-     * @throws Throwable
-     */
-    public function getLastId(): int;
-
-    /**
-     * Transactions allows you to run multiple changes to a database
-     *
-     * @return bool
-     */
-    public function begin(): bool;
-
-    /**
-     * End a transaction and commit your changes
-     *
-     * @return bool
-     */
-    public function end(): bool;
-
-    /**
-     * Cancel a transaction and roll back your changes
-     *
-     * @return bool
-     */
-    public function cancel(): bool;
-
-    /**
-     * dumps the the information that was contained in the Prepared Statement
-     *
-     * @return mixed
-     */
-    public function dumpParams();
+    public function rollBack(): bool;
 }
 ?>
