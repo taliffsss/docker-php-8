@@ -69,6 +69,7 @@ class QueryBuilder implements QueryBuilderInterface
      *
      * @param $table TableName
      * @param $data FieldName & FieldValue
+     * @return bool
      */
     public function insert(string $table, array $data): bool
     {
