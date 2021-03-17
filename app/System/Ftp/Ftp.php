@@ -57,7 +57,7 @@ class Ftp {
 	 */
 	private static function connect() {
 
-		if(self::$_secured == false) {
+		if (self::$_secured == false) {
 
 			$ftpConn = ftp_connect(self::$_ftp_host);
 			$login = ftp_login($ftpConn, self::$_ftp_uname, self::$_ftp_pass);
@@ -87,7 +87,7 @@ class Ftp {
 	 */
 	public static function getInstance() {
 
-		if(!isset(self::$_instance)) {
+		if (!isset(self::$_instance)) {
 
 			self::$_instance = self::connect();
 
@@ -100,20 +100,30 @@ class Ftp {
 	 * Get current Connection
 	 * @return resource
 	 */
-	private static function getConnection() {
+	private static function _getConnection() {
 
 		return self::$_conn;
 
+	}
+
+	public function getConnectionId()
+	{
+		return self::_getConnection();
 	}
 
 	/**
 	 * check whether the ftp is connected.
 	 * @return bool
 	 */
-	private static function isConnected() {
+	private static function _isConnected() {
 
-		return (is_resource($this->getConnection())) ? true : false;
+		return (is_resource($this->_getConnection())) ? true : false;
 
+	}
+
+	public function isConnected()
+	{
+		return self::_isConnected();
 	}
 
 	/**
@@ -123,7 +133,7 @@ class Ftp {
 	 */
 	public function ftpFiles($dir) {
 
-		return (self::isConnected() === true) ? ftp_nlist(self::getConnection(), $dir) : false;
+		return (self::_isConnected() === true) ? ftp_nlist(self::_getConnection(), $dir) : false;
 
 	}
 
@@ -133,7 +143,7 @@ class Ftp {
 	 */
 	public function pwd() {
 
-		return (self::isConnected() === true) ? ftp_pwd(self::getConnection()) : false;
+		return (self::_isConnected() === true) ? ftp_pwd(self::_getConnection()) : false;
 
 	}
 
@@ -144,7 +154,7 @@ class Ftp {
 	 */
 	public function chdir($dir) {
 
-		return (self::isConnected() === true) ? ftp_chdir(self::getConnection(), $dir) : false;
+		return (self::_isConnected() === true) ? ftp_chdir(self::_getConnection(), $dir) : false;
 
 	}
 
@@ -155,7 +165,7 @@ class Ftp {
 	 */
 	public function mkdir($dir) {
 
-		return (self::isConnected() === true) ? ftp_mkdir(self::getConnection(), $dir) : false;
+		return (self::_isConnected() === true) ? ftp_mkdir(self::_getConnection(), $dir) : false;
 
 	}
 
@@ -196,7 +206,7 @@ class Ftp {
 	 */
 	public function rmdir($dir) {
 
-		return (self::isConnected() === true) ? ftp_rmdir(self::getConnection(), $dir) : false;
+		return (self::_isConnected() === true) ? ftp_rmdir(self::_getConnection(), $dir) : false;
 
 	}
 
@@ -207,7 +217,7 @@ class Ftp {
 	 */
 	public function fileExists($file) {
 
-		return (self::isConnected() === true) ? ftp_rmdir(self::$_connString.$file) : false;
+		return (self::_isConnected() === true) ? ftp_rmdir(self::$_connString.$file) : false;
 
 	}
 
@@ -218,7 +228,7 @@ class Ftp {
 	 */
 	public function dirExists($dir) {
 
-		return (self::isConnected() === true) ? ftp_rmdir(self::$_connString.$dir) : false;
+		return (self::_isConnected() === true) ? ftp_rmdir(self::$_connString.$dir) : false;
 
 	}
 
@@ -232,7 +242,7 @@ class Ftp {
 	 */
 	public function get($local, $remote, $mode = FTP_BINARY) {
 
-		return (self::isConnected() === true) ? ftp_get(self::getConnection(), $local, $remote, $mode) : false;
+		return (self::_isConnected() === true) ? ftp_get(self::_getConnection(), $local, $remote, $mode) : false;
 
 	}
 
@@ -244,7 +254,7 @@ class Ftp {
 	 */
 	public function rename($old, $new) {
 
-		return (self::isConnected() === true) ? ftp_rename(self::getConnection(), $old, $new) : false;
+		return (self::_isConnected() === true) ? ftp_rename(self::_getConnection(), $old, $new) : false;
 
 	}
 
@@ -256,7 +266,7 @@ class Ftp {
 	 */
 	public function chmod($file, $mode) {
 
-		return (self::isConnected() === true) ? ftp_chmod(self::getConnection(), $mode, $file) : false;
+		return (self::_isConnected() === true) ? ftp_chmod(self::_getConnection(), $mode, $file) : false;
 
 	}
 
@@ -277,7 +287,7 @@ class Ftp {
 	 */
 	private static function getPasv($ftpConn) {
 		
-        return (self::isConnected() === true) ? ftp_pasv($ftpConn, self::$passive) : false;
+        return (self::_isConnected() === true) ? ftp_pasv($ftpConn, self::$passive) : false;
 
     }
 
@@ -288,7 +298,7 @@ class Ftp {
 	 */
 	public function delete($file) {
 
-		return (self::isConnected() === true) ? ftp_delete(self::getConnection(), $file) : false;
+		return (self::_isConnected() === true) ? ftp_delete(self::_getConnection(), $file) : false;
 
 	}
 
@@ -297,7 +307,7 @@ class Ftp {
 	 * @return void
 	 */
 	public function disconnect() {
-		if(self::isConnected()) {
+		if(self::_isConnected()) {
 			ftp_close(self::$_conn);
 		}
 	}
@@ -310,9 +320,9 @@ class Ftp {
 	 */
 	public function put($files, $root = 'public_html') {
 
-		if (self::isConnected() === true) {
+		if (self::_isConnected() === true) {
 			foreach ($files as $key => $value) {
-				ftp_put(self::getConnection(), $server_root.'/'.$value, $value, FTP_ASCII);
+				ftp_put(self::_getConnection(), $server_root.'/'.$value, $value, FTP_ASCII);
 			}
 		} else {
 			return false;
