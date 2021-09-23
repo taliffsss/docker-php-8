@@ -1,5 +1,7 @@
 FROM php:8.0.8-apache
 
+MAINTAINER Mark Anthony Naluz "anthony.naluz15@gmail.com"
+
 # Set up the Docker Working Directory 
 ENV HOME=/var/www/html/api/
 WORKDIR $HOME
