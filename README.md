@@ -21,6 +21,7 @@ Containerized environment for PHP 8.
 
 1. Make sure that you have an `api` folder for PHP.
 2. Make sure that `api` and `php-docker` are in the same folder.
+3. Make sure you change the `api.conf` with your own setup.
 4. Rename `.env-sample` to `.env` and get updated credentials from the team.
 5. Run `export $(cat .env | xargs)` Mac
 6. Run `docker-compose down -v` to stop any running containers
