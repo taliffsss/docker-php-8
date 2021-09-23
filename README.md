@@ -1,10 +1,16 @@
-
 # Docker
 
 Containerized environment for PHP 8.
-**_Note: This repository is only for running dockerized setup for PHP, Redis, PostgreSQL and Adminer._**
+**_Note: This repository is only for running dockerized setup for PHP API, Redis, PostgreSQL and Adminer,  and It also has JIT enabled_**
 
 ### Docker Setup
+
+#### This setup is also intended for load balancing as well
+
+### Reference
+- Adminer: [Adminer Docker hub](https://hub.docker.com/_/adminer)
+- PostgreSQL: [PostgreSQL Docker hub](https://hub.docker.com/_/postgres)
+- Redis: [Redis Docker hub](https://hub.docker.com/_/redis)
 
 #### Requirements:
 
@@ -13,11 +19,10 @@ Containerized environment for PHP 8.
 
 #### Initial container build
 
-1. Make sure crm2-api and crm2-docker repositories are on the same directory level
-1. For mac users, add entry below in `/etc/hosts`.
-   - `127.0.0.1 php-8.docker.com`
-1. Rename `.env-sample` to `.env` and get updated credentials from the team.
-1. Run `export $(cat .env | xargs)` Mac
-1. Run `docker-compose down -v` to stop any running containers
-1. Run `docker-compose up --build -d` to run container `-d` is for detach mode
-1. Go to `http://php-8.docker.com:port/` to access Dev environment
+1. Make sure that you have an `api` folder for PHP.
+2. Make sure that `api` and `php-docker` are in the same folder.
+4. Rename `.env-sample` to `.env` and get updated credentials from the team.
+5. Run `export $(cat .env | xargs)` Mac
+6. Run `docker-compose down -v` to stop any running containers
+7. Run `docker-compose up --build -d` to run container `-d` is for detach mode
+8. Go to `http://localhost:port/` to access Dev environment
