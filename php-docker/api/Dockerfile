@@ -19,15 +19,40 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     zip \
     unzip \
-    libzip-dev \
-    && docker-php-ext-install zip mysqli pdo pdo_pgsql pgsql pdo_mysql mbstring exif pcntl bcmath gd opcache intl
+    libzip-dev
+
+RUN docker-php-ext-install \
+    zip \
+    mysqli \
+    pdo \
+    pdo_pgsql \
+    pgsql \
+    pdo_mysql \
+    mbstring \
+    pcntl \
+    bcmath \
+    opcache \
+    intl
 
 RUN curl -sS https://getcomposer.org/installer | php \
     && chmod +x composer.phar && mv composer.phar /usr/local/bin/composer
 
+# redis
 RUN pecl install -o -f redis \
     && rm -rf /tmp/pear \
     && docker-php-ext-enable redis
+
+# Enable Apache module
+RUN a2enmod \
+    rewrite \
+    headers \
+    expires \
+    deflate \
+    ssl \
+    proxy \
+    lbmethod_byrequests \
+    proxy_balancer \
+    proxy_http
 
 # Change default docker container ownership to www-data
 RUN usermod -u 1000 www-data
@@ -40,9 +65,6 @@ RUN chown -R $USER:www-data /var/log/apache2/api_error.log
 # Setup apache
 COPY api.conf /etc/apache2/sites-available/
 COPY opcache.ini /usr/local/etc/php/conf.d/
-
-# Enable Apache module
-RUN a2enmod rewrite headers expires deflate ssl proxy lbmethod_byrequests proxy_balancer proxy_http
 
 RUN cd /etc/apache2/sites-available/ && \
     a2ensite api.conf && \
