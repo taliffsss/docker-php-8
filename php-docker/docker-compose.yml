@@ -4,7 +4,7 @@ services:
 
   api1:
     build:
-      context: ./ci4-api/.
+      context: ./api/.
       dockerfile: Dockerfile
     container_name: api1-native
     networks:
@@ -13,12 +13,12 @@ services:
     ports:
       - "${APP_PORT}:80"
     volumes:
-      - ../ci4-api:/var/www/html/ci4-api/
+      - ../api:/var/www/html/api/
     depends_on:
       - postgresql
       - redis
     expose:
-      - "4000"
+      - "${APP_PORT}"
     deploy:
       mode: replicated
       replicas: 1
@@ -30,21 +30,21 @@ services:
 
   api2:
     build:
-      context: ./ci4-api/.
+      context: ./api/.
       dockerfile: Dockerfile
     container_name: api2-native
     networks:
       - php-api
     restart: on-failure
     ports:
-      - "4001:80"
+      - "${APP2_PORT}:80"
     volumes:
-      - ../ci4-api:/var/www/html/ci4-api/
+      - ../api:/var/www/html/api/
     depends_on:
       - postgresql
       - redis
     expose:
-      - "4001"
+      - "${APP2_PORT}"
     deploy:
       mode: replicated
       replicas: 1
@@ -56,21 +56,21 @@ services:
 
   api3:
     build:
-      context: ./ci4-api/.
+      context: ./api/.
       dockerfile: Dockerfile
     container_name: api3-native
     networks:
       - php-api
     restart: on-failure
     ports:
-      - "4002:80"
+      - "${APP3_PORT}:80"
     volumes:
-      - ../ci4-api:/var/www/html/ci4-api/
+      - ../api:/var/www/html/api/
     depends_on:
       - postgresql
       - redis
     expose:
-      - "4002"
+      - "${APP3_PORT}"
     deploy:
       mode: replicated
       replicas: 1
@@ -82,10 +82,10 @@ services:
 
   composer:
     build:
-      context: ./ci4-api/.
+      context: ./api/.
     command: composer install
     volumes:
-      - ../ci4-api/:/var/www/html/ci4-api/
+      - ../api/:/var/www/html/api/
     depends_on:
       - api1
       - api2
@@ -93,10 +93,10 @@ services:
 
   rename-env:
     build:
-      context: ./ci4-api/.
+      context: ./api/.
     command: cp .env-sample .env
     volumes:
-      - ../ci4-api/:/var/www/html/ci4-api/
+      - ../api/:/var/www/html/api/
     depends_on:
       - api1
       - api2

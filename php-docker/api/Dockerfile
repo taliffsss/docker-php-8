@@ -1,7 +1,7 @@
 FROM php:8.0.8-apache
 
 # Set up the Docker Working Directory 
-ENV HOME=/var/www/html/ci4-api/
+ENV HOME=/var/www/html/api/
 WORKDIR $HOME
 
 # Update Server Date time
@@ -38,14 +38,14 @@ RUN ln -sf /dev/stdout /var/log/apache2/api_error.log
 RUN chown -R $USER:www-data /var/log/apache2/api_error.log
 
 # Setup apache
-COPY ci4-api.conf /etc/apache2/sites-available/
+COPY api.conf /etc/apache2/sites-available/
 COPY opcache.ini /usr/local/etc/php/conf.d/
 
 # Enable Apache module
 RUN a2enmod rewrite headers expires deflate ssl proxy lbmethod_byrequests proxy_balancer proxy_http
 
 RUN cd /etc/apache2/sites-available/ && \
-    a2ensite ci4-api.conf && \
+    a2ensite api.conf && \
     a2dissite 000-default.conf && \
     service apache2 restart
 
